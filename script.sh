@@ -1,3 +1,5 @@
+
+
 #!/bin/bash
 
 # Функция для вывода справки
@@ -25,15 +27,18 @@ list_processes() {
 log_file=""
 error_file=""
 
+# Массив для хранения действий
+actions=()
+
 # Парсинг аргументов командной строки
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -u|--users)
-            action="users"
+            actions+=("list_users")
             shift
             ;;
         -p|--processes)
-            action="processes"
+            actions+=("list_processes")
             shift
             ;;
         -h|--help)
@@ -76,17 +81,16 @@ if [[ -n "$error_file" ]]; then
     exec 2>"$error_file"
 fi
 
-# Выполнение действия в зависимости от аргумента
-case "$action" in
-    "users")
-        list_users
-        ;;
-    "processes")
-        list_processes
-        ;;
-    *)
-        echo "No action specified"
-        usage
-        exit 1
-        ;;
-esac
+# Выполнение действий в зависимости от аргументов
+for action in "${actions[@]}"; do
+    $action
+done
+
+# Если не указано ни одно действие
+if [[ ${#actions[@]} -eq 0 ]]; then
+    echo "No action specified"
+    usage
+    exit 1
+fi
+
+
